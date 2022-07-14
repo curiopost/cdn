@@ -34,7 +34,7 @@ const id = aerect.generateID(10);
     
   })
 
-  return res.json({success: true, url: `https://cdn.shaheerahamed.me/${id}`})
+  return res.json({success: true, url: `https://cdn.curiopost.live/${id}`})
   
 })
 app.get('/status', async (req, res) => {
