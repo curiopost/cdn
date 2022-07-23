@@ -1,6 +1,6 @@
-# cdn
+# CDN
 
-Our cdn for delivering attachments in our service
+Our CDN for delivering attachments in our service
 
 # Installation
 
