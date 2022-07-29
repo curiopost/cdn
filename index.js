@@ -1,13 +1,11 @@
-require('./mongo')()
+require('dotenv').config()
 const express = require('express');
 const { storage } = require('./storage/storage');
 const multer = require('multer');
 const upload = multer({ storage });
 const cors= require('cors');
-const images = require('./database/images')
-const aerect = require('aerect.js');
 const logger = require('morgan')
-const authorizer = require('./middleware/authorizer')
+const errorHandler = require('./middleware/errorHandler')
 
 
 const app = express();
@@ -15,51 +13,40 @@ app.use(logger('dev'))
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(errorHandler)
 
 
 
-app.post('/upload',authorizer, upload.single('image'), async(req, res) => {
-const id = aerect.generateID(10);
+app.post('/upload', upload.single('attachment'), async(req, res) => {
+
   if(!req.file) {
-     return res.json({error: "Please provide a valid image"})
+    return res.status(400).json({success: false, message: "Please provide a valid attachment.", code: 400})
   }
   const path = req.file.path;
   if(!path) {
-    return res.json({error: "Please provide a valid image"})
+    return res.status(400).json({success: false, message: "Please provide a valid attachment.", code: 400})
   }
 
-  await images.create({
-    id: id,
-    url: path
-    
-  })
+  
 
-  return res.json({success: true, url: `https://cdn.curiopost.live/${id}`})
+  return res.json({success: true, message: "Attachment successfully uploaded to cdn.", url: `${path}`, code: 200})
   
 })
+
+
 app.get('/status', async (req, res) => {
   res.sendStatus(200)
 })
 app.get('/', async (req, res) => {
   res.sendStatus(403)
 });
-app.get('/:id', async(req, res) => {
-  const id = req.params.id;
-  const image = await images.findOne({id: id})
-  if(!image) {
-   return res.status(404).send()
-    
-  }
-  return res.redirect(image.url)
-})
-
-
-
 
 app.get("*", async (req, res) => {
   res.status(404).send()
 })
 
-app.listen(3000, () => {
-  console.log('server started');
+const PORT = process.env.PORT || 3030
+
+app.listen(PORT, () => {
+  console.log(`[^] Server started on ${PORT}`);
 });
